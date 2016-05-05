@@ -17,4 +17,5 @@
                  :port 9998}}
   :profiles 
     {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
+                          [org.clojure/data.json "0.2.6"] 
                           [ring-mock "0.1.5"]]}})

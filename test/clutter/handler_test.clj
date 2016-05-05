@@ -4,7 +4,8 @@
         clutter.handler)
   (:require [monger.core :as mg]
             [monger.conversion :as mconv]
-            [monger.collection :as mc]))
+            [monger.collection :as mc]
+            [clojure.data.json :as json]))
 
 (deftest test-app-routes
   (with-redefs
@@ -34,6 +35,22 @@
           (is (= '({:name "user1", :uid "user1_id"}
                    {:name "user2", :uid "user2_id"})
                  (-> response :body :users))))))
+    (testing "users endpoint, add user"
+      (with-redefs
+        [mc/insert-and-return (fn [db coll fields]
+                                (is (= "users" coll))
+                                (is (= "Bill" (:name fields)))
+                                (is (not (nil? (:_id fields))))
+                                fields)]
+        (let [response
+                (app-routes
+                  (-> (request :post "/users")
+                      (content-type "application/json")
+                      (assoc :body {:name "Bill"})))]
+          (is (= 200 (:status response)))
+          (is (not (nil? (-> response :body :_id))))
+          (is (string? (-> response :body :_id)))
+          (is (= "Bill" (-> response :body :name))))))
     (testing "conversations endpoint, empty"
       (with-redefs
         [mc/find-maps (fn [db coll query projection] 
