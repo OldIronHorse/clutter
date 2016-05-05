@@ -29,7 +29,7 @@
   (with-db mc/find-maps "conversations" {} {:_id false}))
 
 (defn users []
-  (with-db mc/find-maps "users" {} {:_id false}))
+  (map #(update %1 :_id str) (with-db mc/find-maps "users" {})))
 
 (defn create-user [username]
   (let

@@ -5,7 +5,8 @@
   (:require [monger.core :as mg]
             [monger.conversion :as mconv]
             [monger.collection :as mc]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json])
+  (:import org.bson.types.ObjectId))
 
 (deftest test-app-routes
   (with-redefs
@@ -14,26 +15,26 @@
                   nil)]
     (testing "users endpoint, empty"
       (with-redefs
-        [mc/find-maps (fn [db coll query projection]
+        [mc/find-maps (fn [db coll query]
                         (is (= "users" coll))
                         (is (= {} query))
-                        (is (= {:_id false} projection))
                         '())]
         (let [response (app-routes (request :get "/users"))]
           (is (= 200 (:status response)))
           (is (= '() (-> response :body :users))))))
     (testing "users endpoint, multiple users"
       (with-redefs
-        [mc/find-maps (fn [db coll query projection]
+        [mc/find-maps (fn [db coll query]
                         (is (= "users" coll))
                         (is (= {} query))
-                        (is (= {:_id false} projection))
-                        '({:name "user1", :uid "user1_id"}
-                          {:name "user2", :uid "user2_id"}))]
+                        [{:name "user1"
+                          :_id (ObjectId. "111111111111111111111111")}
+                         {:name "user2"
+                          :_id (ObjectId. "222222222222222222222222")}])]
         (let [response (app-routes (request :get "/users"))]
           (is (= 200 (:status response)))
-          (is (= '({:name "user1", :uid "user1_id"}
-                   {:name "user2", :uid "user2_id"})
+          (is (= '({:name "user1", :_id "111111111111111111111111"}
+                   {:name "user2", :_id "222222222222222222222222"})
                  (-> response :body :users))))))
     (testing "users endpoint, add user"
       (with-redefs
