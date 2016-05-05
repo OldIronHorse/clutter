@@ -31,19 +31,20 @@
 (defn users []
   (with-db mc/find-maps "users" {} {:_id false}))
 
-(defn create-user [name]
+(defn create-user [username]
   (let
-    [new-user (with-db mc/insert-and-return "users" {:name name, :_id (ObjectId.)})]
+    [new-user (with-db mc/insert-and-return "users"
+                {:name username, :_id (ObjectId.)})]
     (update new-user :_id str)))
 
 (defroutes app-routes
   (GET "/users" [] (response {:users (users)}))
-  ;;(POST "/users" request (response (create-user (request :params :name))))
   (POST "/users" request (response (create-user (get-in request [:body :name]))))
   (GET "/conversations" [] (response {:conversations (conversations)}))
   (route/not-found (response {:message "Page not found"})))
 
 (def app
   (->
-    (wrap-json-body app-routes {:keywords? true})
+    app-routes
+    (wrap-json-body {:keywords? true})
     wrap-json-response))

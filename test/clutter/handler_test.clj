@@ -12,7 +12,7 @@
     [mg/get-db (fn [conn db-name]
                   (is (= "clutter" db-name))
                   nil)]
-    (testing "users endpoint, empty" 
+    (testing "users endpoint, empty"
       (with-redefs
         [mc/find-maps (fn [db coll query projection]
                         (is (= "users" coll))
@@ -22,7 +22,7 @@
         (let [response (app-routes (request :get "/users"))]
           (is (= 200 (:status response)))
           (is (= '() (-> response :body :users))))))
-    (testing "users endpoint, multiple users" 
+    (testing "users endpoint, multiple users"
       (with-redefs
         [mc/find-maps (fn [db coll query projection]
                         (is (= "users" coll))
@@ -53,7 +53,7 @@
           (is (= "Bill" (-> response :body :name))))))
     (testing "conversations endpoint, empty"
       (with-redefs
-        [mc/find-maps (fn [db coll query projection] 
+        [mc/find-maps (fn [db coll query projection]
                         (is (= "conversations" coll))
                         (is (= {} query))
                         (is (= {:_id false} projection))
@@ -63,7 +63,7 @@
           (is (= '() (-> response :body :conversations))))))
     (testing "conversations endpoint, multiple empty conversations"
       (with-redefs
-        [mc/find-maps (fn [db coll query projection] 
+        [mc/find-maps (fn [db coll query projection]
                         (is (= "conversations" coll))
                         (is (= {} query))
                         (is (= {:_id false} projection))
