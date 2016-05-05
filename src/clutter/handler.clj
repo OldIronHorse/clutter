@@ -25,11 +25,14 @@
     [db (mg/get-db @conn "clutter")]
     (apply op db args)))
 
+(defn ids-to-str [l]
+  (map #(update %1 :_id str) l))
+
 (defn conversations []
-  (with-db mc/find-maps "conversations" {} {:_id false}))
+  (ids-to-str (with-db mc/find-maps "conversations" {})))
 
 (defn users []
-  (map #(update %1 :_id str) (with-db mc/find-maps "users" {})))
+  (ids-to-str (with-db mc/find-maps "users" {})))
 
 (defn create-user [username]
   (let

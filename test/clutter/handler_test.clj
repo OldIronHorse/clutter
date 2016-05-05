@@ -54,26 +54,28 @@
           (is (= "Bill" (-> response :body :name))))))
     (testing "conversations endpoint, empty"
       (with-redefs
-        [mc/find-maps (fn [db coll query projection]
+        [mc/find-maps (fn [db coll query]
                         (is (= "conversations" coll))
                         (is (= {} query))
-                        (is (= {:_id false} projection))
                         '())]
         (let [response (app-routes (request :get "/conversations"))]
           (is (= 200 (:status response)))
           (is (= '() (-> response :body :conversations))))))
     (testing "conversations endpoint, multiple empty conversations"
       (with-redefs
-        [mc/find-maps (fn [db coll query projection]
+        [mc/find-maps (fn [db coll query]
                         (is (= "conversations" coll))
                         (is (= {} query))
-                        (is (= {:_id false} projection))
-                        '({:by "user1", :title "User 1's Words"}
-                          {:by "user2", :title "Some words from User2"}))]
+                        [{:by "user1", :title "User 1's Words"
+                          :_id (ObjectId. "111111111111111111111111")}
+                         {:by "user2", :title "Some words from User2"
+                          :_id (ObjectId. "222222222222222222222222")}])]
         (let [response (app-routes (request :get "/conversations"))]
           (is (= 200 (:status response)))
-          (is (= '({:by "user1", :title "User 1's Words"}
-                   {:by "user2", :title "Some words from User2"})
+          (is (= '({:by "user1", :title "User 1's Words"
+                    :_id "111111111111111111111111"}
+                   {:by "user2", :title "Some words from User2"
+                    :_id "222222222222222222222222"})
                  (-> response :body :conversations))))))
     (testing "non-existent endpoint"
       (let [response (app-routes (request :get "/theres_nothing_to_see_here"))]
