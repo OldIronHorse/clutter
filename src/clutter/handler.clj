@@ -3,15 +3,41 @@
         ring.middleware.json)
   (:require [compojure.handler :as handler]
             [ring.util.response :refer [response]]
-            [compojure.route :as route]))
+            [compojure.route :as route]
+            [monger.core :as mg]
+            [monger.conversion :as mconv]
+            [monger.collection :as mc]))
+
+(def conn (atom nil))
+
+(defn init []
+  (print "init!\n")
+  (swap! conn (fn [_] (mg/connect))))
+
+(defn destroy []
+  (print "destroy!\n")
+  (mg/disconnect @conn)
+  (swap! conn (fn[_] nil)))
+
+
+(defn with-db [op & args]
+  (let
+    [db (mg/get-db @conn "clutter")]
+    (apply op db args)))
+
+(defn conversations []
+  (with-db mc/find-maps "conversations" {} {:_id false}))
+
+(defn users []
+  (with-db mc/find-maps "users" {} {:_id false}))
 
 (defroutes app-routes
-  (GET "/users" [] (response {}))
-  (GET "/conversations" [] (response {}))
+  (GET "/users" [] (response {:users (users)}))
+  (GET "/conversations" [] (response {:conversations (conversations)}))
   (route/not-found (response {:message "Page not found"})))
 
-(def app 
-  (-> 
+(def app
+  (->
     app-routes
     wrap-json-response
     wrap-json-body))

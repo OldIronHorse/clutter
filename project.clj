@@ -7,9 +7,12 @@
                  [ring/ring-core "1.4.0"]
                  [ring/ring-jetty-adapter "1.4.0"]
                  [ring/ring-json "0.4.0"]
-                 [compojure "1.5.0"]]
+                 [compojure "1.5.0"]
+                 [com.novemberain/monger "3.0.2"]]
   :plugins [[lein-ring "0.8.10"]]
-  :ring {:handler clutter.handler/app
+  :ring {:init clutter.handler/init
+         :destroy clutter.handler/destroy
+         :handler clutter.handler/app
          :nrepl {:start? true
                  :port 9998}}
   :profiles 
