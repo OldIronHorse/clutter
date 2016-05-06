@@ -7,6 +7,7 @@
                  [ring/ring-core "1.4.0"]
                  [ring/ring-jetty-adapter "1.4.0"]
                  [ring/ring-json "0.4.0"]
+                 [ring.middleware.logger "0.5.0"]
                  [compojure "1.5.0"]
                  [com.novemberain/monger "3.0.2"]]
   :plugins [[lein-ring "0.8.10"]]

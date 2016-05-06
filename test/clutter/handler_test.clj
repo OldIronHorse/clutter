@@ -52,6 +52,17 @@
           (is (not (nil? (-> response :body :_id))))
           (is (string? (-> response :body :_id)))
           (is (= "Bill" (-> response :body :name))))))
+    (testing "users endpoint, get user by id"
+      (with-redefs
+        [mc/find-one-as-map (fn [db coll query]
+                              (is (= "users" coll))
+                              (is (= {:_id "111111111111111111111111"}))
+                              {:name "user1", :_id "111111111111111111111111"})]
+        (let [response (app-routes
+                          (request :get "/users/111111111111111111111111"))]
+          (is (= 200 (:status response)))
+          (is (= "111111111111111111111111" (-> response :body :_id)))
+          (is (= "user1" (-> response :body :name))))))
     (testing "conversations endpoint, empty"
       (with-redefs
         [mc/find-maps (fn [db coll query]
