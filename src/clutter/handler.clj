@@ -10,16 +10,20 @@
             [monger.collection :as mc])
   (:import org.bson.types.ObjectId))
 
+;; Ugly, but works for prod and test...
 (def conn (atom nil))
 
 (defn init []
-  ;; should probably do more checking here
-  (swap! conn (fn [_] (mg/connect))))
+  (swap!
+    conn
+    (fn [c]
+      (if (nil? c) (mg/connect) c))))
 
 (defn destroy []
-  ;; should probably do more checking here
-  (mg/disconnect @conn)
-  (swap! conn (fn[_] nil)))
+  (swap! 
+    conn
+    (fn[c]
+      (if (nil? c) c (mg/disconnect @conn)))))
 
 (defn with-db [op & args]
   (let
@@ -32,8 +36,8 @@
 (defn conversations []
   (ids-to-str (with-db mc/find-maps "conversations" {})))
 
-(defn users []
-  (ids-to-str (with-db mc/find-maps "users" {})))
+(defn users [params]
+  (ids-to-str (with-db mc/find-maps "users" (if (nil? params) {} params))))
 
 (defn create-user [username]
   (let
@@ -45,7 +49,8 @@
   (update (with-db mc/find-one-as-map "users" {:_id (ObjectId. _id)}) :_id str))
 
 (defroutes app-routes
-  (GET "/users" [] (response {:users (users)}))
+  ;;(GET "/users" request (str request))
+  (GET "/users" {params :params} {:users (users params)})
   (GET "/users/:_id" [_id] (response  (user-by-id _id)))
   (POST "/users" request (response (create-user (get-in request [:body :name]))))
   (GET "/conversations" [] (response {:conversations (conversations)}))
@@ -65,4 +70,5 @@
     logger/wrap-with-logger
     (wrap-json-body {:keywords? true})
     wrap-json-response
-    wrap-exception-handling))
+    wrap-exception-handling
+    handler/api))

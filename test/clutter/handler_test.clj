@@ -21,7 +21,7 @@
                         '())]
         (let [response (app-routes (request :get "/users"))]
           (is (= 200 (:status response)))
-          (is (= '() (-> response :body :users))))))
+          (is (= '() (:users response))))))
     (testing "users endpoint, multiple users"
       (with-redefs
         [mc/find-maps (fn [db coll query]
@@ -35,7 +35,19 @@
           (is (= 200 (:status response)))
           (is (= '({:name "user1", :_id "111111111111111111111111"}
                    {:name "user2", :_id "222222222222222222222222"})
-                 (-> response :body :users))))))
+                 (:users response))))))
+    (testing "users endpoint, query by name"
+      (with-redefs
+        [mc/find-maps (fn [db coll query]
+                        (is (= "users" coll))
+                        (is (= {:name "Bill"} query))
+                        [{:name "Bill"
+                          :_id (ObjectId. "111111111111111111111111")}])]
+      (let [response (app
+                      (request :get "/users" {:name "Bill"}))]
+        (is (= 200 (:status response))
+        (is (= '({:name "Bill", :_id "111111111111111111111111"}
+              (-> response :body :users))))))))
     (testing "users endpoint, add user"
       (with-redefs
         [mc/insert-and-return (fn [db coll fields]
