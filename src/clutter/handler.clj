@@ -22,7 +22,7 @@
       (if (nil? c) (mg/connect) c))))
 
 (defn destroy []
-  (swap! 
+  (swap!
     conn
     (fn[c]
       (if (nil? c) c (mg/disconnect @conn)))))
@@ -32,7 +32,7 @@
   (let
     [db (mg/get-db @conn "clutter")
      result (apply op db args)]
-    (log/info "with-db: result:" (str (into () result)))
+    (log/info "with-db: result:" (str (vec result)))
     result))
 
 (defn ids-to-str [l]
@@ -67,7 +67,6 @@
       (catch Exception e
         (log/info "wrap-exception-handling" (str e))
         {:status 404, :body "Item not found"}))))
-  
 
 (def app
   (-> app-routes
@@ -76,13 +75,3 @@
     wrap-json-response
     wrap-exception-handling
     (wrap-defaults api-defaults)))
-
-(comment
-  (->
-    app-routes
-    logger/wrap-with-logger
-    (wrap-json-body {:keywords? true})
-    wrap-json-response
-    wrap-exception-handling
-    handler/api))
-    
