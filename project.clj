@@ -7,9 +7,11 @@
                  [ring/ring-core "1.4.0"]
                  [ring/ring-jetty-adapter "1.4.0"]
                  [ring/ring-json "0.4.0"]
+                 [ring/ring-defaults "0.2.0"]
                  [ring.middleware.logger "0.5.0"]
                  [compojure "1.5.0"]
-                 [com.novemberain/monger "3.0.2"]]
+                 [com.novemberain/monger "3.0.2"]
+                 [org.clojure/tools.logging "0.2.4"]]
   :plugins [[lein-ring "0.8.10"]]
   :ring {:init clutter.handler/init
          :destroy clutter.handler/destroy
