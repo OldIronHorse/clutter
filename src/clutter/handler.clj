@@ -49,7 +49,6 @@
   (update (with-db mc/find-one-as-map "users" {:_id (ObjectId. _id)}) :_id str))
 
 (defroutes app-routes
-  ;;(GET "/users" request (str request))
   (GET "/users" {params :params} {:users (users params)})
   (GET "/users/:_id" [_id] (response  (user-by-id _id)))
   (POST "/users" request (response (create-user (get-in request [:body :name]))))
